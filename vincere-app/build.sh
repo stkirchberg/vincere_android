@@ -1,18 +1,19 @@
-JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
 SDK_DIR="/home/sonja/android-sdk"
 PLATFORM="$SDK_DIR/platforms/android-34/android.jar"
 BUILD_TOOLS="$SDK_DIR/build-tools/34.0.0"
+AAPT="$BUILD_TOOLS/aapt2"
+D8="$BUILD_TOOLS/d8"
 
+rm -rf gen bin
+mkdir -p gen bin/classes
 
-rm -rf bin
-mkdir -p bin/com/vincere/app
+$AAPT compile -o gen src/main/res/layout/activity_main.xml
+$AAPT link -I "$PLATFORM" -o bin/app.apk --manifest src/main/AndroidManifest.xml gen/*.flat
 
-echo "--- 1. Kompilieren ---"
-$JAVA_HOME/bin/javac -classpath "$PLATFORM" -d bin src/main/java/com/vincere/app/*.java
+/usr/lib/jvm/java-21-openjdk/bin/javac -classpath "$PLATFORM" -d bin/classes src/main/java/com/vincere/app/*.java
 
-echo "--- 2. Dexen (Android Bytecode) ---"
+$D8 --classpath "$PLATFORM" --output bin/classes bin/classes/com/vincere/app/*.class
 
-"$BUILD_TOOLS/d8" --classpath "$PLATFORM" --output bin bin/com/vincere/app/*.class
+zip -u bin/app.apk classes.dex
 
-echo "--- Build abgeschlossen! ---"
-echo "Die fertige classes.dex liegt in /bin"
+echo "APK erstellt: bin/app.apk"
