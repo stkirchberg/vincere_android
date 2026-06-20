@@ -16,7 +16,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//go:embed templates/* static/*
 var content embed.FS
 
 type User struct {
